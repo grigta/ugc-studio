@@ -1,0 +1,80 @@
+{
+  "networkVolume": {
+    "name": "ugc-studio-weights",
+    "size": 150,
+    "dataCenterId": "EU-RO-1"
+  },
+  "endpoints": [
+    {
+      "key": "image",
+      "name": "ugc-image",
+      "imageName": "ghcr.io/grigta/ugc-image-worker:latest",
+      "containerDiskInGb": 20,
+      "gpuTypeIds": ["NVIDIA L40S"],
+      "gpuCount": 1,
+      "workersMin": 0,
+      "workersMax": 3,
+      "idleTimeout": 10,
+      "scalerType": "QUEUE_DELAY",
+      "scalerValue": 4,
+      "executionTimeoutMs": 600000,
+      "env": {}
+    },
+    {
+      "key": "video",
+      "name": "ugc-video",
+      "imageName": "ghcr.io/grigta/ugc-video-worker:latest",
+      "containerDiskInGb": 30,
+      "gpuTypeIds": ["NVIDIA A100 80GB PCIe", "NVIDIA L40S"],
+      "gpuCount": 1,
+      "workersMin": 0,
+      "workersMax": 2,
+      "idleTimeout": 15,
+      "scalerType": "QUEUE_DELAY",
+      "scalerValue": 4,
+      "executionTimeoutMs": 1200000,
+      "env": {
+        "_comment": "для выдачи видео по URL задай S3/R2 креды",
+        "BUCKET_ENDPOINT_URL": "",
+        "BUCKET_ACCESS_KEY_ID": "",
+        "BUCKET_SECRET_ACCESS_KEY": ""
+      }
+    },
+    {
+      "key": "voice",
+      "name": "ugc-voice",
+      "imageName": "ghcr.io/grigta/ugc-voice-worker:latest",
+      "containerDiskInGb": 15,
+      "gpuTypeIds": ["NVIDIA RTX 4090", "NVIDIA RTX A5000"],
+      "gpuCount": 1,
+      "workersMin": 0,
+      "workersMax": 3,
+      "idleTimeout": 10,
+      "scalerType": "QUEUE_DELAY",
+      "scalerValue": 4,
+      "executionTimeoutMs": 300000,
+      "env": {
+        "COSYVOICE_MODEL_DIR": "/runpod-volume/models/CosyVoice2-0.5B"
+      }
+    },
+    {
+      "key": "script",
+      "name": "ugc-script",
+      "imageName": "runpod/worker-v1-vllm:v2.22.4",
+      "containerDiskInGb": 30,
+      "gpuTypeIds": ["NVIDIA L40S", "NVIDIA RTX 4090"],
+      "gpuCount": 1,
+      "workersMin": 0,
+      "workersMax": 2,
+      "idleTimeout": 10,
+      "scalerType": "QUEUE_DELAY",
+      "scalerValue": 4,
+      "executionTimeoutMs": 300000,
+      "env": {
+        "_comment": "vLLM-воркер. Модель качается с HF при cold start. Для T-pro/Qwen-32B возьми GPU побольше и/или network volume. Имя MODEL_NAME должно совпадать с RUNPOD_SCRIPT_MODEL в web/.env.local. Проверь актуальный тег образа на hub.docker.com/r/runpod/worker-v1-vllm",
+        "MODEL_NAME": "Qwen/Qwen2.5-7B-Instruct",
+        "MAX_MODEL_LEN": "8192"
+      }
+    }
+  ]
+}

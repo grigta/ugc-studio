@@ -1,0 +1,5 @@
+runpod~=1.7.6
+soundfile>=0.12.1
+numpy<2.0
+# torch/torchaudio обычно ставятся из requirements CosyVoice; при необходимости
+# зафиксируй версии под CUDA 12.4 (cu124).
