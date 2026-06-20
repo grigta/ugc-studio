@@ -3,15 +3,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { listAssets, type Asset } from "@/lib/library";
 
 type FilePayload = { field: string; name: string; dataUrl: string };
-type StepKey = "persona" | "product" | "video" | "voice" | "mux";
+type StepKey = "persona" | "product" | "voice" | "talkinghead";
 type StepState = "idle" | "run" | "done" | "skip" | "err";
 
 const STEPS: { key: StepKey; nm: string; ic: string }[] = [
   { key: "persona", nm: "Персонаж", ic: "M20 21a8 8 0 0 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
   { key: "product", nm: "Товар", ic: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0" },
-  { key: "video", nm: "Видео", ic: "M3 5h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM23 7l-5 4 5 4z" },
   { key: "voice", nm: "Голос", ic: "M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM5 10v1a7 7 0 0 0 14 0v-1M12 18v4" },
-  { key: "mux", nm: "Сборка", ic: "M2 4h20v16H2zM7 4v16M17 4v16M2 8h5M2 12h5M2 16h5M17 8h5M17 12h5M17 16h5" },
+  { key: "talkinghead", nm: "Говорит", ic: "M3 5h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM23 7l-5 4 5 4z" },
 ];
 
 const PV_CHECK = "M5 12l5 5L20 7";
@@ -124,7 +123,7 @@ export default function AutoPipeline() {
   const [genBusy, setGenBusy] = useState(false);
   const [running, setRunning] = useState(false);
   const [steps, setSteps] = useState<Record<StepKey, StepState>>({
-    persona: "idle", product: "idle", video: "idle", voice: "idle", mux: "idle",
+    persona: "idle", product: "idle", voice: "idle", talkinghead: "idle",
   });
   const [progress, setProgress] = useState(0);
   const [batchLabel, setBatchLabel] = useState("");
@@ -161,7 +160,7 @@ export default function AutoPipeline() {
     setSteps((prev) => ({ ...prev, [k]: s }));
   }
   function resetSteps() {
-    setSteps({ persona: "idle", product: "idle", video: "idle", voice: "idle", mux: "idle" });
+    setSteps({ persona: "idle", product: "idle", voice: "idle", talkinghead: "idle" });
     setProgress(0);
   }
 
@@ -228,37 +227,39 @@ export default function AutoPipeline() {
       setStep("product", "done"); setProgress(40);
     }
 
-    setStep("video", "run");
-    const vOut = await runStep(
-      "video",
-      { prompt: persona, length: durToFrames(duration), width: q.w, height: q.h, steps: q.steps, seed },
-      productImg ? [{ field: "image", name: "start.png", dataUrl: productImg }] : []
-    );
-    const video = videoSrc(vOut);
-    setStep("video", "done"); setProgress(70);
-
-    let audio: string | null = null;
+    // голос: озвучка нужна как вход говорящей головы (S2V)
+    setStep("voice", "run");
     const voiceRef = chosenVoice
       ? { field: "prompt_audio", name: "voice.wav", dataUrl: chosenVoice.dataUrl }
       : refAudio;
     const voicePrompt = chosenVoice ? (chosenVoice.meta?.transcript || "") : promptText;
+    let audio: string | null = null;
     if (voiceRef) {
-      setStep("voice", "run");
       const aOut = await runStep("voice", {
         mode: "zero_shot", text: voiceover, prompt_text: voicePrompt, speed: 1,
       }, [voiceRef]);
       audio = audioSrc(aOut);
       setStep("voice", "done");
     } else {
-      setStep("voice", "skip");
+      setStep("voice", "err");
+      throw new Error("Для говорящей головы нужен голос: загрузи референс или выбери из библиотеки");
     }
-    setProgress(90);
+    setProgress(60);
 
-    setStep("mux", "run");
-    await sleep(300);
-    setStep("mux", "done"); setProgress(100);
+    // говорящая голова: фото + аудио → видео с липсинком (S2V муксит звук в mp4)
+    setStep("talkinghead", "run");
+    const tOut = await runStep(
+      "talkinghead",
+      { prompt: persona, length: durToFrames(duration), width: q.w, height: q.h, seed },
+      [
+        ...(productImg ? [{ field: "image", name: "start.png", dataUrl: productImg }] : []),
+        { field: "audio", name: "voice.wav", dataUrl: audio || "" },
+      ]
+    );
+    const video = videoSrc(tOut);
+    setStep("talkinghead", "done"); setProgress(100);
 
-    return { video, audio, label: `${quality}p · ${duration}с` };
+    return { video, audio, label: `${quality}p · ${duration}с · talking` };
   }
 
   async function run() {

@@ -17,7 +17,7 @@ export interface Field {
 }
 
 export interface Tool {
-  key: "persona" | "product" | "video" | "voice";
+  key: "persona" | "product" | "video" | "talkinghead" | "voice";
   label: string;
   description: string;
   endpoint: EndpointKey;
@@ -76,6 +76,24 @@ export const TOOLS: Tool[] = [
       { name: "width", label: "Ширина", type: "number", default: 832, step: 16 },
       { name: "height", label: "Высота", type: "number", default: 480, step: 16 },
       { name: "steps", label: "Шаги", type: "number", default: 20, min: 1, max: 40 },
+      { name: "seed", label: "Seed", type: "seed", default: 0 },
+    ],
+  },
+  {
+    key: "talkinghead",
+    label: "Говорящая голова",
+    description: "Аудио-driven: фото + голос → говорящее видео с липсинком и движением (Wan2.2-S2V).",
+    endpoint: "video",
+    output: "video",
+    needsExport: true,
+    fields: [
+      { name: "image", label: "Фото персонажа (кадр)", type: "image", hint: "лицо/портрет, который заговорит" },
+      { name: "audio", label: "Аудио речи (WAV)", type: "audio", hint: "озвучка — лучше 16 кГц моно" },
+      { name: "prompt", label: "Промпт", type: "textarea", default: "a person talking to camera, natural expression, cinematic" },
+      { name: "negative", label: "Negative", type: "textarea", default: "static, distorted, bad lips, low quality" },
+      { name: "length", label: "Кадров", type: "number", default: 77, min: 25, max: 161, step: 4, hint: "77 ≈ 5с @16fps; длиннее = дольше" },
+      { name: "width", label: "Ширина", type: "number", default: 576, step: 16 },
+      { name: "height", label: "Высота", type: "number", default: 1024, step: 16 },
       { name: "seed", label: "Seed", type: "seed", default: 0 },
     ],
   },

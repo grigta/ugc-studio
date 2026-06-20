@@ -5,6 +5,7 @@ import type { EndpointKey } from "./runpod";
 import persona from "../workflows/persona.json";
 import productInsert from "../workflows/product_insert.json";
 import wanI2V from "../workflows/wan_i2v.json";
+import wanS2V from "../workflows/wan_s2v.json";
 
 type Target = [string, string]; // [nodeId, inputName]
 type Binding = Target | Target[];
@@ -57,6 +58,22 @@ const COMFY: Record<string, ComfyTool> = {
       image: ["5", "image"],
     },
     imageFields: ["image"],
+  },
+  talkinghead: {
+    endpoint: "video",
+    template: wanS2V as any,
+    bindings: {
+      prompt: ["7", "text"],
+      negative: ["8", "text"],
+      length: ["11", "length"],
+      width: ["11", "width"],
+      height: ["11", "height"],
+      seed: ["12", "seed"],
+      image: ["5", "image"],
+      // аудио уезжает в input.images как voice.wav -> ComfyUI /upload/image -> LoadAudio
+      audio: ["6", "audio"],
+    },
+    imageFields: ["image", "audio"],
   },
 };
 

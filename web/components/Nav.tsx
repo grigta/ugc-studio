@@ -18,6 +18,7 @@ const LINKS: { href: string; label: string; icon: string }[] = [
   { href: "/persona", label: "Персонаж", icon: I.user },
   { href: "/product", label: "Товар в кадр", icon: I.product },
   { href: "/video", label: "Видео", icon: I.video },
+  { href: "/talkinghead", label: "Говорящая голова", icon: I.video },
   { href: "/voice", label: "Голос", icon: I.voice },
   { href: "/library", label: "Библиотека", icon: I.library },
 ];
