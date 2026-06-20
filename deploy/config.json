@@ -70,11 +70,14 @@
       "idleTimeout": 10,
       "scalerType": "QUEUE_DELAY",
       "scalerValue": 4,
-      "executionTimeoutMs": 300000,
+      "executionTimeoutMs": 600000,
       "env": {
-        "_comment": "vLLM-воркер. Модель качается с HF при cold start. Для T-pro/Qwen-32B возьми GPU побольше и/или network volume. Имя MODEL_NAME должно совпадать с RUNPOD_SCRIPT_MODEL в web/.env.local. Проверь актуальный тег образа на hub.docker.com/r/runpod/worker-v1-vllm",
-        "MODEL_NAME": "Qwen/Qwen2.5-7B-Instruct",
-        "MAX_MODEL_LEN": "8192"
+        "_comment": "vLLM-воркер. T-pro-it-2.1-FP8 (Qwen3-32B, RU), FP8 на одну A100 80GB. Без volume: воркер качает модель (~33ГБ) на cold-start — первый запрос долгий (~5-10мин), дальше быстро. Имя MODEL_NAME должно совпадать с RUNPOD_SCRIPT_MODEL в web/.env.local.",
+        "MODEL_NAME": "t-tech/T-pro-it-2.1-FP8",
+        "MAX_MODEL_LEN": "12000",
+        "GPU_MEMORY_UTILIZATION": "0.95",
+        "TRUST_REMOTE_CODE": "1",
+        "DTYPE": "auto"
       }
     }
   ]
