@@ -62,7 +62,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/${{ steps.vars.outputs.owner }}/ugc-${{ matrix.worker }}-worker:${{ inputs.tag || 'latest' }}
+            ghcr.io/${{ steps.vars.outputs.owner }}/ugc-${{ matrix.worker }}-worker:${{ github.event.inputs.tag || 'latest' }}
             ghcr.io/${{ steps.vars.outputs.owner }}/ugc-${{ matrix.worker }}-worker:${{ github.sha }}
           cache-from: type=gha,scope=${{ matrix.worker }}
           cache-to: type=gha,mode=max,scope=${{ matrix.worker }}
@@ -70,4 +70,4 @@ jobs:
       - name: Summary
         run: |
           echo "### Образ собран: ugc-${{ matrix.worker }}-worker" >> "$GITHUB_STEP_SUMMARY"
-          echo "\`ghcr.io/${{ steps.vars.outputs.owner }}/ugc-${{ matrix.worker }}-worker:${{ inputs.tag || 'latest' }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`ghcr.io/${{ steps.vars.outputs.owner }}/ugc-${{ matrix.worker }}-worker:${{ github.event.inputs.tag || 'latest' }}\`" >> "$GITHUB_STEP_SUMMARY"
