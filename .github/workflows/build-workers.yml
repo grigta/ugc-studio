@@ -32,12 +32,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # образы тяжёлые (worker-comfyui ~13GB, CUDA+torch) — освобождаем место на раннере
+      # образы тяжёлые (worker-comfyui Blackwell ~13GB сжат / ~30GB распакован) — чистим раннер
       - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force || true
-          df -h
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
       - name: Lowercase owner
         id: vars
@@ -63,8 +65,6 @@ jobs:
           tags: |
             ghcr.io/${{ steps.vars.outputs.owner }}/ugc-${{ matrix.worker }}-worker:${{ github.event.inputs.tag || 'latest' }}
             ghcr.io/${{ steps.vars.outputs.owner }}/ugc-${{ matrix.worker }}-worker:${{ github.sha }}
-          cache-from: type=gha,scope=${{ matrix.worker }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.worker }}
 
       - name: Summary
         run: |
