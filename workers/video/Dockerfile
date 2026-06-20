@@ -1,7 +1,7 @@
 # video worker — ComfyUI + Wan 2.2 (I2V / Animate / S2V talking-head)
 # База: официальный RunPod ComfyUI serverless worker.
 # Проверь актуальный тег: https://hub.docker.com/r/runpod/worker-comfyui/tags
-FROM runpod/worker-comfyui:5.8.6-base
+FROM runpod/worker-comfyui:5.8.6-base-cuda12.8.1
 
 # Ноды для видео: VideoHelperSuite (сборка/вывод видео) + KJNodes (Wan-хелперы,
 # WanVideoWrapper-утилиты, блок-свап и пр.).

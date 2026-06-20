@@ -2,7 +2,7 @@
 # База: официальный RunPod ComfyUI serverless worker.
 # Контракт воркера (наследуется от базы): job.input = { workflow, images[] }.
 # Проверь актуальный тег на https://hub.docker.com/r/runpod/worker-comfyui/tags
-FROM runpod/worker-comfyui:5.8.6-base
+FROM runpod/worker-comfyui:5.8.6-base-cuda12.8.1
 
 # Кастомные ноды из ComfyUI Registry (имена — по comfy registry).
 # kjnodes — утилиты; videohelpersuite не нужен для image, но safe.

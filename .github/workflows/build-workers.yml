@@ -32,9 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # voice-образ тяжёлый (CUDA + torch) — освобождаем место на раннере
+      # образы тяжёлые (worker-comfyui ~13GB, CUDA+torch) — освобождаем место на раннере
       - name: Free disk space
-        if: matrix.worker == 'voice'
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL
           sudo docker image prune --all --force || true

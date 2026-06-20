@@ -1,5 +1,7 @@
 # voice worker — CosyVoice 2 (русский TTS + zero-shot клон голоса), кастомный handler.
 # Лёгкий serverless worker без ComfyUI: контракт job.input описан в handler.py.
+# voice идёт на A100 (sm_80) в том же ДЦ, что и volume: CosyVoice 0.5B не нуждается в 96GB,
+# а stock-torch на A100 стабилен (Blackwell потребовал бы хрупкий nightly cu128).
 FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1 PIP_PREFER_BINARY=1
